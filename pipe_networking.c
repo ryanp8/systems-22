@@ -31,34 +31,26 @@ int server_setup() {
   =========================*/
 int server_connect(int from_client) {
   int to_client = 0;
-  int f, b;
-  f = fork();
-  
-  if (f) {
-    close(from_client);
-    server_setup();
-  }
-  else {
-    char ppname[HANDSHAKE_BUFFER_SIZE];
-    char buffer[HANDSHAKE_BUFFER_SIZE];
-    read(from_client, ppname, sizeof(ppname));
+  int b;
+  char ppname[HANDSHAKE_BUFFER_SIZE];
+  char buffer[HANDSHAKE_BUFFER_SIZE];
+  read(from_client, ppname, sizeof(ppname));
 
-    to_client = open(ppname, O_WRONLY);
-    srand(time(NULL));
-    int r = rand() % HANDSHAKE_BUFFER_SIZE;
-    sprintf(buffer, "%d", r);
+  to_client = open(ppname, O_WRONLY);
+  srand(time(NULL));
+  int r = rand() % HANDSHAKE_BUFFER_SIZE;
+  sprintf(buffer, "%d", r);
 
-    write(to_client, buffer, sizeof(buffer));
-    //rad and check ACK
-    read(from_client, buffer, sizeof(buffer));
-    int ra = atoi(buffer);
-    if (ra != r+1) {
-        printf("[server] handshake received bad ACK: -%s-\n", buffer);
-        exit(0);
-    }//bad response
-    printf("[server] handshake received: -%s-\n", buffer);
+  write(to_client, buffer, sizeof(buffer));
+  //rad and check ACK
+  read(from_client, buffer, sizeof(buffer));
+  int ra = atoi(buffer);
+  if (ra != r+1) {
+      printf("[server] handshake received bad ACK: -%s-\n", buffer);
+      exit(0);
+  }//bad response
+  printf("[server] handshake received: -%s-\n", buffer);
 
-  }
 
 
   return to_client;
